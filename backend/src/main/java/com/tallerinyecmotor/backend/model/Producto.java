@@ -42,16 +42,13 @@ public class Producto {
     private List<TipoProducto> tipos;
     @ManyToMany
     @JsonBackReference
-    private List<Marca> marcas;
-    @ManyToMany
-    @JsonBackReference
     private List<Modelo> modelos;
 
     public Producto(){
 
     }
 
-    public Producto(Long id, String codigo, String nombre, int stockMin, int stockMax, int stockActual, double precioVenta, double precioCosto, List<Proveedor> proveedores, List<TipoProducto> tipos, List<Marca> marca, List<Modelo> modelos) {
+    public Producto(Long id, String codigo, String nombre, int stockMin, int stockMax, int stockActual, double precioVenta, double precioCosto, List<Proveedor> proveedores, List<TipoProducto> tipos, List<Modelo> modelos) {
         this.id = id;
         this.codigo = codigo;
         this.nombre = nombre;
@@ -62,7 +59,8 @@ public class Producto {
         this.precioCosto = precioCosto;
         this.proveedores = proveedores;
         this.tipos = tipos;
-        this.marcas = marcas;
         this.modelos = modelos;
     }
+
+    //filtros - aceites - bujias - baterias
 }

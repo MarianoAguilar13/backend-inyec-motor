@@ -4,8 +4,10 @@ import com.tallerinyecmotor.backend.dto.DTOModeloCreate;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
 import com.tallerinyecmotor.backend.model.Modelo;
 import com.tallerinyecmotor.backend.service.IModeloService;
+import com.tallerinyecmotor.backend.utils.SHA256;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,9 +21,38 @@ public class ModeloController {
     @Autowired
     private IModeloService iModelo;
 
-    @GetMapping("/modelo/all")
-    public ResponseEntity<?> getModelos(){
+    private SHA256 controlPass = new SHA256();
 
+
+    @GetMapping("/modelo/all")
+    public ResponseEntity<?> getModelos(@RequestHeader("Authorization") String authorizationHeader){
+
+        try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
+
+                if(controlPass.verifyPassword(pass)){
+
+                    List<Modelo> modelos = iModelo.getModelos();
+                    if (modelos.isEmpty()){
+
+                        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay modelos cargadas en la base de datos");
+
+                    }else {
+
+                        return new ResponseEntity<List<Modelo>>(modelos, HttpStatus.OK);
+                    }
+                }else {
+                   return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
+            }
+            else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+                }
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+/*
         try{
 
             List<Modelo> modelos = iModelo.getModelos();
@@ -38,7 +69,7 @@ public class ModeloController {
 
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        }*/
     }
 
     @PostMapping("/modelo/crear")

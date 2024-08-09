@@ -6,6 +6,7 @@ import com.tallerinyecmotor.backend.dto.DTOProductoEditar;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
 import com.tallerinyecmotor.backend.model.Producto;
 import com.tallerinyecmotor.backend.service.IProductoService;
+import com.tallerinyecmotor.backend.utils.EnvConfig;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -160,23 +161,6 @@ public class ProductoController {
 
     }
 
-
-    @GetMapping("/producto/get-by-marca/{idMarca}")
-    public ResponseEntity<?> getProductosByMarca(@PathVariable Long idMarca){
-        try{
-            List<Producto> productos = iProducto.getProductosByMarca(idMarca);
-
-            if(productos==null){
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
-            }else {
-                return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
-            }
-
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-
-    }
 
     @GetMapping("/producto/get-productos-a-reponer")
     public ResponseEntity<?> getProductoPorDebajoStockMinimo(){

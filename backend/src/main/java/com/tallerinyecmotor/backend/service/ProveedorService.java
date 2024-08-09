@@ -2,10 +2,7 @@ package com.tallerinyecmotor.backend.service;
 
 import com.tallerinyecmotor.backend.dto.DTOProveedor;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
-import com.tallerinyecmotor.backend.model.Marca;
-import com.tallerinyecmotor.backend.model.Modelo;
 import com.tallerinyecmotor.backend.model.Proveedor;
-import com.tallerinyecmotor.backend.model.TipoProducto;
 import com.tallerinyecmotor.backend.repository.IProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

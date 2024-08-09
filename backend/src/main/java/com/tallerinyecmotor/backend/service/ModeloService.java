@@ -2,10 +2,8 @@ package com.tallerinyecmotor.backend.service;
 
 import com.tallerinyecmotor.backend.dto.DTOModeloCreate;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
-import com.tallerinyecmotor.backend.model.Marca;
 import com.tallerinyecmotor.backend.model.Modelo;
 import com.tallerinyecmotor.backend.model.Proveedor;
-import com.tallerinyecmotor.backend.repository.IMarcaRepository;
 import com.tallerinyecmotor.backend.repository.IModeloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
@@ -18,9 +16,6 @@ public class ModeloService implements IModeloService{
 
     @Autowired
     private IModeloRepository modeloRepo;
-
-    @Autowired
-    private IMarcaRepository marcaRepo;
 
     @Override
     public List<Modelo> getModelos() {
@@ -37,10 +32,8 @@ public class ModeloService implements IModeloService{
 
             try {
                 Modelo modeloFound = modeloRepo.findById(modeloDTO.getId()).orElse(null);
-                Marca marcaFound = marcaRepo.findById(modeloDTO.getMarca()).orElse(null);
 
                 if (modeloFound == null) {
-                    if (marcaFound != null){
 
                         Modelo modelo = new Modelo();
                         modelo.setId(modeloDTO.getId());
@@ -48,16 +41,11 @@ public class ModeloService implements IModeloService{
                         modelo.setMotorLitros(modeloDTO.getMotorLitros());
                         modelo.setMotorTipo(modeloDTO.getMotorTipo());
                         modelo.setAnio(modeloDTO.getAnio());
-                        modelo.setMarca(marcaFound);
+                        modelo.setMarca(modeloDTO.getMarca());
 
                         modeloRepo.save(modelo);
 
                         return resOK;
-                }else {
-                        RespuestaService resNotMarca = new RespuestaService(false,"La marca no existe existe con ese id","");
-                        return resNotMarca;
-                    }
-
             }else {
                     RespuestaService resFound = new RespuestaService(false,"El modelo ya existe con ese id","");
                     return resFound;

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,10 +30,9 @@ public class Modelo {
     @Column(nullable = false)
     @Range(min = 1950, max = 2040)
     private int anio;
-    @ManyToOne
-    @JoinColumn(name="marca_id")
-    @JsonBackReference
-    private Marca marca;
+    @Column(nullable = false)
+    @Size(min = 3, max = 50)
+    private String marca;
     @ManyToMany (mappedBy = "modelos")
     @JsonManagedReference
     private List<Producto> productos;
@@ -43,7 +41,7 @@ public class Modelo {
 
     }
 
-    public Modelo(Long id, String nombre, double motorLitros, String motorTipo, int anio, Marca marca) {
+    public Modelo(Long id, String nombre, double motorLitros, String motorTipo, int anio, String marca) {
         this.id = id;
         this.nombre = nombre;
         this.motorLitros = motorLitros;

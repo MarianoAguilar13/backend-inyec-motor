@@ -23,8 +23,6 @@ public interface IProductoService {
 
     public  List<Producto> getProductosByModelo(Long idModelo);
 
-    public  List<Producto> getProductosByMarca(Long idMarca);
-
     public  List<Producto> getProductoPorDebajoStockMinimo();
 
     public RespuestaService disminuirStock(Long id, int restar);

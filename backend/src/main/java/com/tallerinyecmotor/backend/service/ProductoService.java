@@ -18,9 +18,6 @@ public class ProductoService implements IProductoService {
     private IProductoRepository productoRepo;
 
     @Autowired
-    private IMarcaRepository marcaRepo;
-
-    @Autowired
     private ITipoProductoRepository tipoRepo;
 
     @Autowired
@@ -44,7 +41,6 @@ public class ProductoService implements IProductoService {
         RespuestaService resOK = new RespuestaService(true,"El Producto se creó correctamente","");
 
         try {
-            List<Marca> marcas = marcaRepo.findAllById(productoDto.getMarcas());
 
             List<Modelo> modelos =  modeloRepo.findAllById(productoDto.getModelos());
 
@@ -65,7 +61,6 @@ public class ProductoService implements IProductoService {
                 producto.setStockActual(productoDto.getStockActual());
                 producto.setPrecioCosto(productoDto.getPrecioCosto());
                 producto.setPrecioVenta(productoDto.getPrecioVenta());
-                producto.setMarcas(marcas);
                 producto.setModelos(modelos);
                 producto.setProveedores(proveedores);
                 producto.setTipos(tipos);
@@ -151,23 +146,6 @@ public class ProductoService implements IProductoService {
         }
     }
 
-    @Override
-    public List<Producto> getProductosByMarca(Long idMarca) {
-        try {
-            Marca marca = marcaRepo.findById(idMarca).orElse(null);
-
-            if (marca !=null){
-
-                return marca.getProductos();
-
-            }else {
-                return null;
-            }
-
-        }catch (Exception e){
-            return  null;
-        }
-    }
 
     @Override
     public List<Producto> getProductoPorDebajoStockMinimo() {

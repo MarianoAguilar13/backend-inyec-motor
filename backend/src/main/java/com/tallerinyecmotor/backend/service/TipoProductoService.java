@@ -2,16 +2,12 @@ package com.tallerinyecmotor.backend.service;
 
 import com.tallerinyecmotor.backend.dto.DTOTipoProducto;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
-import com.tallerinyecmotor.backend.model.Marca;
-import com.tallerinyecmotor.backend.model.Modelo;
-import com.tallerinyecmotor.backend.model.Proveedor;
 import com.tallerinyecmotor.backend.model.TipoProducto;
 import com.tallerinyecmotor.backend.repository.ITipoProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TipoProductoService implements ITipoProductoService {

@@ -34,8 +34,6 @@ public class DTOProducto {
     @NotNull(message = "El precio de costo no puede ser nulo")
     @Positive(message = "El precio de costo debe ser un número positivo.")
     private double precioCosto;
-    @NotEmpty(message = "El producto debe tener una o mas marcas.")
-    private List<Long> marcas;
     @NotEmpty(message = "El producto debe tener uno o mas proveedores.")
     private List<Long> proveedores;
     @NotEmpty(message = "El producto debe tener uno o mas tipos.")
