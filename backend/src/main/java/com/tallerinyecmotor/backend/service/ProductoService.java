@@ -41,12 +41,83 @@ public class ProductoService implements IProductoService {
         RespuestaService resOK = new RespuestaService(true,"El Producto se creó correctamente","");
 
         try {
-
+    /*
             List<Modelo> modelos =  modeloRepo.findAllById(productoDto.getModelos());
+
+            if (modelos.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los modelos no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
 
             List<Proveedor> proveedores = proveedorRepo.findAllById(productoDto.getProveedores());
 
+            if (proveedores.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los proveedores no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
+
             List<TipoProducto> tipos = tipoRepo.findAllById(productoDto.getTipos());
+
+            if (tipos.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los tipos de producto no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
+*/
+            
+            List<Long> idsModelos = productoDto.getModelos();
+            if (idsModelos.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los modelos no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
+            List<Long> idsProveedores = productoDto.getProveedores();
+            if (idsProveedores.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los proveedores no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
+            List<Long> idsTipos = productoDto.getTipos();
+            if (idsTipos.isEmpty()){
+                RespuestaService resFound = new RespuestaService(false,"Los tipos de producto no existen por lo tanto no se puede crear el producto","");
+                return resFound;
+            }
+
+            List<Modelo> modelos = new ArrayList<Modelo>();
+            List<Proveedor> proveedores = new ArrayList<Proveedor>();
+            List<TipoProducto> tipos = new ArrayList<TipoProducto>();
+
+            //traerme todos los modelos
+            for (Long idModelo : idsModelos) {
+               Modelo oneModelo = modeloRepo.findById(idModelo).orElse(null);
+
+               if (oneModelo == null){
+                   RespuestaService resFound = new RespuestaService(false,"Todos o algúnos de los modelos no existen por lo tanto no se puede crear el producto","");
+                   return resFound;
+               }else{
+                   modelos.add(oneModelo);
+               }
+            }
+            //traerme todos los proveedores
+            for (Long idProveedor : idsProveedores) {
+                Proveedor oneProveedor = proveedorRepo.findById(idProveedor).orElse(null);
+
+                if (oneProveedor == null){
+                    RespuestaService resFound = new RespuestaService(false,"Todos o algúnos de los proveedores no existen por lo tanto no se puede crear el producto","");
+                    return resFound;
+                }else{
+                    proveedores.add(oneProveedor);
+                }
+            }
+            //traerme todos los tipos
+            for (Long idTipo: idsTipos) {
+                TipoProducto oneTipo = tipoRepo.findById(idTipo).orElse(null);
+
+                if (oneTipo == null){
+                    RespuestaService resFound = new RespuestaService(false,"Todos o algúnos de los tipos de producto no existen por lo tanto no se puede crear el producto","");
+                    return resFound;
+                }else{
+                    tipos.add(oneTipo);
+                }
+            }
+
 
             Producto productoFound = productoRepo.findById(productoDto.getId()).orElse(null);
 

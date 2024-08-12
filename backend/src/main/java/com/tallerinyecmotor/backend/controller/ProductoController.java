@@ -6,7 +6,7 @@ import com.tallerinyecmotor.backend.dto.DTOProductoEditar;
 import com.tallerinyecmotor.backend.dto.RespuestaService;
 import com.tallerinyecmotor.backend.model.Producto;
 import com.tallerinyecmotor.backend.service.IProductoService;
-import com.tallerinyecmotor.backend.utils.EnvConfig;
+import com.tallerinyecmotor.backend.utils.SHA256;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,43 +22,65 @@ public class ProductoController {
     @Autowired
     private IProductoService iProducto;
 
+    private SHA256 controlPass = new SHA256();
+
     @GetMapping("/producto/all")
-    public ResponseEntity<?> getProducto(){
+    public ResponseEntity<?> getProducto(@RequestHeader("Authorization") String authorizationHeader){
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            List<Producto> productos = iProducto.getProducto();
-            if (productos.isEmpty()){
+                if(controlPass.verifyPassword(pass)){
 
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay productos cargadas en la base de datos");
+                    List<Producto> productos = iProducto.getProducto();
+                    if (productos.isEmpty()){
 
-            }else {
+                        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay productos cargadas en la base de datos");
 
-                return new ResponseEntity<List<Producto>>(productos, HttpStatus.OK);
+                    }else {
+
+                        return new ResponseEntity<List<Producto>>(productos, HttpStatus.OK);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @PostMapping("/producto/crear")
-    public ResponseEntity<?> createProveedor(@Valid @RequestBody DTOProducto producto, BindingResult bindingResult){
+    public ResponseEntity<?> createProveedor(@Valid @RequestBody DTOProducto producto, BindingResult bindingResult,@RequestHeader("Authorization") String authorizationHeader){
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            RespuestaService res = iProducto.saveProducto(producto);
+                if(controlPass.verifyPassword(pass)){
 
-            if (res.isExito() == true){
-                return ResponseEntity.status(HttpStatus.CREATED).body(res);
-            }else{
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                    RespuestaService res = iProducto.saveProducto(producto);
+
+                    if (res.isExito() == true){
+                        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+                    }else{
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -66,23 +88,35 @@ public class ProductoController {
     }
 
     @DeleteMapping("/producto/eliminar/{id}")
-    public ResponseEntity<?> deleteProducto(@PathVariable Long id){
+    public ResponseEntity<?> deleteProducto(@PathVariable Long id,@RequestHeader("Authorization") String authorizationHeader){
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            Producto productoFound = iProducto.findProductoById(id);
+                if(controlPass.verifyPassword(pass)){
 
-            if(productoFound==null){
-                RespuestaService resNotFound = new RespuestaService(false,"El Producto no se encontró, vuelva a enviar un id de un producto valido","");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resNotFound);
-            }else {
-                RespuestaService res = iProducto.deleteProducto(id);
-                if (res.isExito() == true){
-                    return ResponseEntity.status(HttpStatus.OK).body(res);
-                }else{
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                    Producto productoFound = iProducto.findProductoById(id);
+
+                    if(productoFound==null){
+                        RespuestaService resNotFound = new RespuestaService(false,"El Producto no se encontró, vuelva a enviar un id de un producto valido","");
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resNotFound);
+                    }else {
+                        RespuestaService res = iProducto.deleteProducto(id);
+                        if (res.isExito() == true){
+                            return ResponseEntity.status(HttpStatus.OK).body(res);
+                        }else{
+                            return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                        }
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
                 }
             }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
+
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -90,20 +124,30 @@ public class ProductoController {
     }
 
     @PatchMapping("/producto/editar")
-    public ResponseEntity<?> updateProveedor(@Valid @RequestBody DTOProductoEditar producto, BindingResult bindingResult){
+    public ResponseEntity<?> updateProveedor(@Valid @RequestBody DTOProductoEditar producto, BindingResult bindingResult,@RequestHeader("Authorization") String authorizationHeader){
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            iProducto.updateProducto(producto);
+                if(controlPass.verifyPassword(pass)){
 
-            Producto productoUpdated = iProducto.findProductoById(producto.getId());
+                    iProducto.updateProducto(producto);
 
-            return new ResponseEntity<Producto>(productoUpdated, HttpStatus.OK);
+                    Producto productoUpdated = iProducto.findProductoById(producto.getId());
 
+                    return new ResponseEntity<Producto>(productoUpdated, HttpStatus.OK);
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -111,16 +155,27 @@ public class ProductoController {
     }
 
     @GetMapping("/producto/get-by-id/{id}")
-    public ResponseEntity<?> getProveedorById(@PathVariable Long id){
+    public ResponseEntity<?> getProveedorById(@PathVariable Long id,@RequestHeader("Authorization") String authorizationHeader){
+
         try{
-            Producto productoFound = iProducto.findProductoById(id);
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            if(productoFound==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El proveedor que se quiere encontrar no existe según el id enviado");
-            }else {
-                return new ResponseEntity<Producto>(productoFound ,HttpStatus.FOUND);
+                if(controlPass.verifyPassword(pass)){
+                    Producto productoFound = iProducto.findProductoById(id);
+
+                    if(productoFound==null){
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El producto que se quiere encontrar no existe según el id enviado");
+                    }else {
+                        return new ResponseEntity<Producto>(productoFound ,HttpStatus.FOUND);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -128,16 +183,26 @@ public class ProductoController {
     }
 
     @GetMapping("/producto/get-by-tipo/{idTipo}")
-    public ResponseEntity<?> getProductosByTipo(@PathVariable Long idTipo){
+    public ResponseEntity<?> getProductosByTipo(@PathVariable Long idTipo,@RequestHeader("Authorization") String authorizationHeader){
         try{
-            List<Producto> productos = iProducto.getProductosByTipo(idTipo);
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            if(productos==null){
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
-            }else {
-                return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                if(controlPass.verifyPassword(pass)){
+                    List<Producto> productos = iProducto.getProductosByTipo(idTipo);
+
+                    if(productos==null){
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
+                    }else {
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -145,16 +210,28 @@ public class ProductoController {
     }
 
     @GetMapping("/producto/get-by-modelo/{idModelo}")
-    public ResponseEntity<?> getProductosByModelo(@PathVariable Long idModelo){
+    public ResponseEntity<?> getProductosByModelo(@PathVariable Long idModelo,@RequestHeader("Authorization") String authorizationHeader){
+
         try{
-            List<Producto> productos = iProducto.getProductosByModelo(idModelo);
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            if(productos==null){
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
-            }else {
-                return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                if(controlPass.verifyPassword(pass)){
+
+                    List<Producto> productos = iProducto.getProductosByModelo(idModelo);
+
+                    if(productos==null){
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
+                    }else {
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -163,16 +240,27 @@ public class ProductoController {
 
 
     @GetMapping("/producto/get-productos-a-reponer")
-    public ResponseEntity<?> getProductoPorDebajoStockMinimo(){
+    public ResponseEntity<?> getProductoPorDebajoStockMinimo(@RequestHeader("Authorization") String authorizationHeader){
         try{
-            List<Producto> productos = iProducto.getProductoPorDebajoStockMinimo();
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            if(productos!=null){
-                return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
-            }else {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("hubo un error intente nuevamente");
+                if(controlPass.verifyPassword(pass)){
+
+                    List<Producto> productos = iProducto.getProductoPorDebajoStockMinimo();
+
+                    if(productos!=null){
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                    }else {
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body("hubo un error intente nuevamente");
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -180,26 +268,36 @@ public class ProductoController {
     }
 
     @PatchMapping("/producto/descontar-stock")
-    public ResponseEntity<?> getDescontarStock(@Valid @RequestBody DTOActualizacionStock actStock, BindingResult bindingResult){
+    public ResponseEntity<?> getDescontarStock(@Valid @RequestBody DTOActualizacionStock actStock, BindingResult bindingResult,@RequestHeader("Authorization") String authorizationHeader){
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
         try{
-            if (actStock.getCantidad() > 0 && actStock.getId()!=null){
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-                RespuestaService res = iProducto.disminuirStock(actStock.getId(),actStock.getCantidad());
+                if(controlPass.verifyPassword(pass)){
+                    if (actStock.getCantidad() > 0 && actStock.getId()!=null){
 
-                if (res.isExito() == true){
-                    return ResponseEntity.status(HttpStatus.OK).body(res);
-                }else{
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                        RespuestaService res = iProducto.disminuirStock(actStock.getId(),actStock.getCantidad());
+
+                        if (res.isExito() == true){
+                            return ResponseEntity.status(HttpStatus.OK).body(res);
+                        }else{
+                            return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                        }
+                    }else {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La peticion no tiene un formato correcto");
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
                 }
-            }else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La peticion no tiene un formato correcto");
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -207,24 +305,35 @@ public class ProductoController {
     }
 
     @PatchMapping("/producto/aumentar-stock")
-    public ResponseEntity<?> getAumentarStock(@Valid @RequestBody DTOActualizacionStock actStock, BindingResult bindingResult){
+    public ResponseEntity<?> getAumentarStock(@Valid @RequestBody DTOActualizacionStock actStock, BindingResult bindingResult,@RequestHeader("Authorization") String authorizationHeader){
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
         try{
-            if (actStock.getCantidad() > 0 && actStock.getId()!=null) {
-                RespuestaService res = iProducto.aumentarStock(actStock.getId(), actStock.getCantidad());
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-                if (res.isExito() == true) {
-                    return ResponseEntity.status(HttpStatus.OK).body(res);
-                } else {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                if(controlPass.verifyPassword(pass)){
+                    if (actStock.getCantidad() > 0 && actStock.getId()!=null) {
+                        RespuestaService res = iProducto.aumentarStock(actStock.getId(), actStock.getCantidad());
+
+                        if (res.isExito() == true) {
+                            return ResponseEntity.status(HttpStatus.OK).body(res);
+                        } else {
+                            return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                        }
+                    }else {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La peticion no tiene un formato correcto");
+                        }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
                 }
-            }else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La peticion no tiene un formato correcto");
-                }
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

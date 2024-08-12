@@ -52,43 +52,36 @@ public class ModeloController {
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-/*
-        try{
-
-            List<Modelo> modelos = iModelo.getModelos();
-            if (modelos.isEmpty()){
-
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay modelos cargadas en la base de datos");
-
-            }else {
-
-                return new ResponseEntity<List<Modelo>>(modelos, HttpStatus.OK);
-            }
-
-
-
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }*/
     }
 
     @PostMapping("/modelo/crear")
-    public ResponseEntity<?> createModelo(@Valid @RequestBody DTOModeloCreate modeloDto, BindingResult bindingResult){
+    public ResponseEntity<?> createModelo(@Valid @RequestBody DTOModeloCreate modeloDto, BindingResult bindingResult, @RequestHeader("Authorization")  String authorizationHeader){
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            RespuestaService res = iModelo.saveModeloCreate(modeloDto);
+                if(controlPass.verifyPassword(pass)){
 
-            if (res.isExito() == true){
-                return ResponseEntity.status(HttpStatus.CREATED).body(res);
-            }else{
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+
+                RespuestaService res = iModelo.saveModeloCreate(modeloDto);
+
+                if (res.isExito() == true){
+                    return ResponseEntity.status(HttpStatus.CREATED).body(res);
+                }else{
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
 
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -97,22 +90,34 @@ public class ModeloController {
     }
 
     @DeleteMapping("/modelo/eliminar/{id}")
-    public ResponseEntity<?> deleteModelo(@PathVariable Long id){
+    public ResponseEntity<?> deleteModelo(@PathVariable Long id,@RequestHeader("Authorization") String authorizationHeader){
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            Modelo modeloFound = iModelo.findModelo(id);
+                if(controlPass.verifyPassword(pass)){
 
-            if(modeloFound==null){
-                RespuestaService resNotFound = new RespuestaService(false,"El modelo que se quiere eliminar no existe según el id enviado","");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resNotFound);
-            }else {
-                RespuestaService res = iModelo.deleteModelo(id);
-                if (res.isExito() == true) {
-                    return ResponseEntity.status(HttpStatus.OK).body(res);
-                } else {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+
+                    Modelo modeloFound = iModelo.findModelo(id);
+
+                    if(modeloFound==null){
+                        RespuestaService resNotFound = new RespuestaService(false,"El modelo que se quiere eliminar no existe según el id enviado","");
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resNotFound);
+                    }else {
+                        RespuestaService res = iModelo.deleteModelo(id);
+                        if (res.isExito() == true) {
+                            return ResponseEntity.status(HttpStatus.OK).body(res);
+                        } else {
+                            return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                        }
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
                 }
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
             }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -121,16 +126,26 @@ public class ModeloController {
     }
 
     @PatchMapping("/modelo/editar")
-    public ResponseEntity<?> updateModelo(@RequestBody DTOModeloCreate modelo){
+    public ResponseEntity<?> updateModelo(@RequestBody DTOModeloCreate modelo,@RequestHeader("Authorization") String authorizationHeader){
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            iModelo.updateModelo(modelo.getId(),modelo.getNombre(),modelo.getMotorLitros(), modelo.getMotorTipo(),modelo.getAnio());
+                if(controlPass.verifyPassword(pass)){
 
-            Modelo modeloUpdated = iModelo.findModelo(modelo.getId());
+                    iModelo.updateModelo(modelo.getId(),modelo.getNombre(),modelo.getMotorLitros(), modelo.getMotorTipo(),modelo.getAnio());
 
-            return new ResponseEntity<Modelo>(modeloUpdated, HttpStatus.OK);
+                    Modelo modeloUpdated = iModelo.findModelo(modelo.getId());
 
+                    return new ResponseEntity<Modelo>(modeloUpdated, HttpStatus.OK);
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -138,24 +153,32 @@ public class ModeloController {
     }
 
     @GetMapping("/modelo/get-by-id/{id}")
-    public ResponseEntity<?> getModeloById(@PathVariable Long id){
+    public ResponseEntity<?> getModeloById(@PathVariable Long id,@RequestHeader("Authorization") String authorizationHeader){
 
 
         try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
 
-            Modelo modeloFound = iModelo.findModelo(id);
+                if(controlPass.verifyPassword(pass)){
 
-            if(modeloFound==null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modeloque se quiere encontrar no existe según el id enviado");
-            }else {
-                return new ResponseEntity<Modelo>(modeloFound ,HttpStatus.FOUND);
+                    Modelo modeloFound = iModelo.findModelo(id);
+
+                    if(modeloFound==null){
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modeloque se quiere encontrar no existe según el id enviado");
+                    }else {
+                        return new ResponseEntity<Modelo>(modeloFound ,HttpStatus.FOUND);
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
             }
-
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
     }
-
-
 }
