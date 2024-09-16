@@ -2,10 +2,11 @@ package com.tallerinyecmotor.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tallerinyecmotor.backend.dto.DTOModeloCreate;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Size;
+    import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -18,7 +19,7 @@ public class Modelo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = false)
     private String nombre;
     @Column(nullable = false)
     @DecimalMin("1.0")
@@ -48,5 +49,18 @@ public class Modelo {
         this.motorTipo = motorTipo;
         this.anio = anio;
         this.marca = marca;
+    }
+
+    public DTOModeloCreate ModeloToDTOModeloCreate(){
+
+        DTOModeloCreate dtoModelo = new DTOModeloCreate();
+        dtoModelo.setId(this.id);
+        dtoModelo.setNombre(this.nombre);
+        dtoModelo.setMotorLitros(this.motorLitros);
+        dtoModelo.setMotorTipo(this.motorTipo);
+        dtoModelo.setAnio(this.anio);
+        dtoModelo.setMarca(this.marca);
+
+        return dtoModelo;
     }
 }

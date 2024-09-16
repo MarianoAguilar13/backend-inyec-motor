@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -31,28 +33,40 @@ public class ModeloService implements IModeloService{
             RespuestaService resOK = new RespuestaService(true,"El modelo se creó correctamente","");
 
             try {
-                Modelo modeloFound = modeloRepo.findById(modeloDTO.getId()).orElse(null);
 
-                if (modeloFound == null) {
+                List<Modelo> modelosFound = modeloRepo.findByNombre(modeloDTO.getNombre());
 
-                        Modelo modelo = new Modelo();
-                        modelo.setId(modeloDTO.getId());
-                        modelo.setNombre(modeloDTO.getNombre());
-                        modelo.setMotorLitros(modeloDTO.getMotorLitros());
-                        modelo.setMotorTipo(modeloDTO.getMotorTipo());
-                        modelo.setAnio(modeloDTO.getAnio());
-                        modelo.setMarca(modeloDTO.getMarca());
+                List<Modelo> listaModelos = new ArrayList<>();
 
-                        modeloRepo.save(modelo);
+                        for (Modelo modelo:modelosFound) {
+                            if (modelo.getNombre().equals(modeloDTO.getNombre()) && modelo.getMotorTipo().equals(modeloDTO.getMotorTipo()) && modelo.getAnio() == modeloDTO.getAnio() && modelo.getMotorLitros() == modeloDTO.getMotorLitros()) {
+                                listaModelos.add(modelo);
+                            }
+                        }
 
-                        return resOK;
-            }else {
-                    RespuestaService resFound = new RespuestaService(false,"El modelo ya existe con ese id","");
-                    return resFound;
-                }
+                        for (Modelo printModelo : listaModelos) {
+                            System.out.println(printModelo.getNombre() + " " + printModelo.getMotorLitros() + " " + printModelo.getMotorTipo() + " " + printModelo.getAnio());
+                        }
 
+
+                        if (listaModelos.isEmpty()){
+                            Modelo modelo = new Modelo();
+                            modelo.setId(modeloDTO.getId());
+                            modelo.setNombre(modeloDTO.getNombre());
+                            modelo.setMotorLitros(modeloDTO.getMotorLitros());
+                            modelo.setMotorTipo(modeloDTO.getMotorTipo());
+                            modelo.setAnio(modeloDTO.getAnio());
+                            modelo.setMarca(modeloDTO.getMarca());
+
+                            modeloRepo.save(modelo);
+
+                            return resOK;
+                        }else {
+                            RespuestaService resExist = new RespuestaService(false,"El modelo ya existe con un mismo nombre, tipo de motor, litros de motor y año","");
+                            return resExist;
+                    }
             }catch (Exception e){
-                RespuestaService resFail = new RespuestaService(false,"El Proveedor no se creó",e.getMessage());
+                RespuestaService resFail = new RespuestaService(false,"El Modelo no se creó",e.getMessage());
                 return resFail;
             }
 
@@ -60,6 +74,8 @@ public class ModeloService implements IModeloService{
 
     @Override
     public void saveModeloUpdate(Modelo modelo) {
+
+
 
         modeloRepo.save(modelo);
 
@@ -89,30 +105,71 @@ public class ModeloService implements IModeloService{
         return modeloFound;
     }
 
-
     //la marca no se puede cambiar, si se confundio, eliminar el modelo y crearlo de nuevo
     @Override
-    public void updateModelo(Long id, String nombre, double motorLitros, String motorTipo, int anio) {
+    public RespuestaService updateModelo(Long id, String nombre, double motorLitros, String motorTipo, int anio) {
 
-        Modelo modelo = this.findModelo(id);
+        RespuestaService resOK = new RespuestaService(true,"El modelo se actualizó correctamente","");
 
-        if (nombre != null){
-            modelo.setNombre(nombre);
+        try {
+
+            Modelo modelo = this.findModelo(id);
+
+            if (nombre != null){
+                modelo.setNombre(nombre);
+            }
+
+            if (motorLitros > 0){
+                modelo.setMotorLitros(motorLitros);
+            }
+
+            if (motorTipo != null){
+                modelo.setMotorTipo(motorTipo);
+            }
+
+            if (anio > 1950){
+                modelo.setAnio(anio);
+            }
+
+            List<Modelo> modelosFound = modeloRepo.findByNombre(modelo.getNombre());
+
+            List<Modelo> listaModelos = new ArrayList<>();
+
+                for (Modelo modeloFor:modelosFound) {
+                    if (modeloFor.getNombre().equals(modelo.getNombre()) && modeloFor.getMotorTipo().equals(modelo.getMotorTipo()) && modeloFor.getAnio() == modelo.getAnio() && modeloFor.getMotorLitros() == modelo.getMotorLitros()) {
+                        listaModelos.add(modelo);
+                    }
+                }
+
+                if (listaModelos.isEmpty()){
+                    this.saveModeloUpdate(modelo);
+
+                    return resOK;
+
+                }else {
+                    RespuestaService resExist = new RespuestaService(false,"El modelo ya existe con un mismo nombre, tipo de motor, litros de motor y año","");
+
+                    return resExist;
+                }
+        }catch (Exception e){
+            RespuestaService resFail = new RespuestaService(false,"El Modelo no se creó",e.getMessage());
+
+            return resFail;
         }
 
-        if (motorLitros > 0){
-            modelo.setMotorLitros(motorLitros);
+    }
+
+    @Override
+    public List<DTOModeloCreate> findModeloByName(String nombre){
+
+        List<Modelo> listaModelos = modeloRepo.findByNombre(nombre);
+
+        List<DTOModeloCreate> listaDTOModelos = new ArrayList<>();
+
+        for (Modelo modelo:listaModelos) {
+            listaDTOModelos.add(modelo.ModeloToDTOModeloCreate());
         }
 
-        if (motorTipo != null){
-            modelo.setMotorTipo(motorTipo);
-        }
-
-        if (anio > 1950){
-            modelo.setAnio(anio);
-        }
-
-        this.saveModeloUpdate(modelo);
-
+        return listaDTOModelos;
     }
 }

@@ -19,6 +19,8 @@ public interface IModeloService {
 
     public Modelo findModelo (Long id);
 
-    public void updateModelo (Long id, String nombre, double motorLitros, String motorTipo, int anio);
+    public RespuestaService updateModelo (Long id, String nombre, double motorLitros, String motorTipo, int anio);
+
+    public List<DTOModeloCreate> findModeloByName (String nombre);
 
 }

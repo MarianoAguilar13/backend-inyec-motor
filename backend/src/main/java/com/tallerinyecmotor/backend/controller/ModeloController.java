@@ -134,11 +134,13 @@ public class ModeloController {
 
                 if(controlPass.verifyPassword(pass)){
 
-                    iModelo.updateModelo(modelo.getId(),modelo.getNombre(),modelo.getMotorLitros(), modelo.getMotorTipo(),modelo.getAnio());
+                    RespuestaService res = iModelo.updateModelo(modelo.getId(),modelo.getNombre(),modelo.getMotorLitros(), modelo.getMotorTipo(),modelo.getAnio());
 
-                    Modelo modeloUpdated = iModelo.findModelo(modelo.getId());
-
-                    return new ResponseEntity<Modelo>(modeloUpdated, HttpStatus.OK);
+                    if (res.isExito() == true){
+                        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+                    }else{
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+                    }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
                 }
@@ -165,7 +167,7 @@ public class ModeloController {
                     Modelo modeloFound = iModelo.findModelo(id);
 
                     if(modeloFound==null){
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modeloque se quiere encontrar no existe según el id enviado");
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modelo que se quiere encontrar no existe según el id enviado");
                     }else {
                         return new ResponseEntity<Modelo>(modeloFound ,HttpStatus.FOUND);
                     }
@@ -179,6 +181,41 @@ public class ModeloController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
 
+
+    @GetMapping("/modelo/get-by-name")
+    public ResponseEntity<?> getModeloByName( @RequestParam(required = true) String nombre,@RequestHeader("Authorization") String authorizationHeader){
+
+
+        try{
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String pass = authorizationHeader.substring(7);
+
+                if(controlPass.verifyPassword(pass)){
+
+                    System.out.println("Nombre: " + nombre);
+
+                    if (nombre.length() > 1){
+                    List<DTOModeloCreate> modeloFound = iModelo.findModeloByName(nombre);
+
+                    if(modeloFound==null){
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modeloque se quiere encontrar no existe según el id enviado");
+                    }else {
+                        return new ResponseEntity<List<DTOModeloCreate>>(modeloFound ,HttpStatus.FOUND);
+                    }
+                    }else{
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre del modelo debe tener al menos 2 caracteres");
+                    }
+                }else {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
+                }
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header no existe o invalido");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }
