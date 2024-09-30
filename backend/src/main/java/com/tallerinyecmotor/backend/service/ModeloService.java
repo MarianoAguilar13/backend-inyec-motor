@@ -113,23 +113,37 @@ public class ModeloService implements IModeloService{
 
         try {
 
-            Modelo modelo = this.findModelo(id);
+            Modelo modeloFound = this.findModelo(id);
+
+            Modelo modelo = new Modelo();
 
             if (nombre != null){
                 modelo.setNombre(nombre);
+            }else {
+                modelo.setNombre(modeloFound.getNombre());
             }
 
             if (motorLitros > 0){
                 modelo.setMotorLitros(motorLitros);
+            }else {
+                modelo.setMotorLitros(modeloFound.getMotorLitros());
             }
 
             if (motorTipo != null){
                 modelo.setMotorTipo(motorTipo);
+            }else {
+                modelo.setMotorTipo(modeloFound.getMotorTipo());
             }
 
             if (anio > 1950){
                 modelo.setAnio(anio);
+            }else {
+                modelo.setAnio(modeloFound.getAnio());
             }
+
+            modelo.setId(modeloFound.getId());
+            modelo.setProductos(modeloFound.getProductos());
+            modelo.setMarca(modeloFound.getMarca());
 
             List<Modelo> modelosFound = modeloRepo.findByNombre(modelo.getNombre());
 
@@ -137,9 +151,11 @@ public class ModeloService implements IModeloService{
 
                 for (Modelo modeloFor:modelosFound) {
                     if (modeloFor.getNombre().equals(modelo.getNombre()) && modeloFor.getMotorTipo().equals(modelo.getMotorTipo()) && modeloFor.getAnio() == modelo.getAnio() && modeloFor.getMotorLitros() == modelo.getMotorLitros()) {
-                        listaModelos.add(modelo);
+                        listaModelos.add(modeloFor);
                     }
                 }
+
+               // System.out.println("La lista de los modelos es: " + listaModelos.get(0).getAnio());
 
                 if (listaModelos.isEmpty()){
                     this.saveModeloUpdate(modelo);
