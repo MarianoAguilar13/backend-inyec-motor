@@ -167,7 +167,7 @@ public class ProductoController {
                     if(productoFound==null){
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El producto que se quiere encontrar no existe según el id enviado");
                     }else {
-                        return new ResponseEntity<Producto>(productoFound ,HttpStatus.FOUND);
+                        return new ResponseEntity<Producto>(productoFound ,HttpStatus.OK);
                     }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
@@ -194,7 +194,7 @@ public class ProductoController {
                     if(productos==null){
                         return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
                     }else {
-                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.OK);
                     }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
@@ -223,7 +223,7 @@ public class ProductoController {
                     if(productos==null){
                         return ResponseEntity.status(HttpStatus.CONFLICT).body("No tiene ningun producto o hubo un error");
                     }else {
-                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.OK);
                     }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
@@ -250,7 +250,7 @@ public class ProductoController {
                     List<Producto> productos = iProducto.getProductoPorDebajoStockMinimo();
 
                     if(productos!=null){
-                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.FOUND);
+                        return new ResponseEntity<List<Producto>>(productos ,HttpStatus.OK);
                     }else {
                         return ResponseEntity.status(HttpStatus.CONFLICT).body("hubo un error intente nuevamente");
                     }

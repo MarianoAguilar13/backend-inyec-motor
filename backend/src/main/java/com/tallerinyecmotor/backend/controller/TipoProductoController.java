@@ -159,7 +159,7 @@ public class TipoProductoController {
                     if(tipoFound==null){
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El tipo de producto se quiere encontrar no existe según el id enviado");
                     }else {
-                        return new ResponseEntity<TipoProducto>(tipoFound ,HttpStatus.FOUND);
+                        return new ResponseEntity<TipoProducto>(tipoFound ,HttpStatus.OK);
                     }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");

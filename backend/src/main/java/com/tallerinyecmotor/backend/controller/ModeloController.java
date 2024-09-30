@@ -169,7 +169,7 @@ public class ModeloController {
                     if(modeloFound==null){
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modelo que se quiere encontrar no existe según el id enviado");
                     }else {
-                        return new ResponseEntity<Modelo>(modeloFound ,HttpStatus.FOUND);
+                        return new ResponseEntity<Modelo>(modeloFound ,HttpStatus.OK);
                     }
                 }else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("La contraseña ingresada no es la correcta, por favor intente nuevamente");
@@ -202,7 +202,7 @@ public class ModeloController {
                     if(modeloFound==null){
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El modeloque se quiere encontrar no existe según el id enviado");
                     }else {
-                        return new ResponseEntity<List<DTOModeloCreate>>(modeloFound ,HttpStatus.FOUND);
+                        return new ResponseEntity<List<DTOModeloCreate>>(modeloFound ,HttpStatus.OK);
                     }
                     }else{
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre del modelo debe tener al menos 2 caracteres");
