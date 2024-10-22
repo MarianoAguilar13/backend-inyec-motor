@@ -37,6 +37,10 @@ public class Modelo {
     @ManyToMany (mappedBy = "modelos")
     @JsonManagedReference
     private List<Producto> productos;
+    @OneToMany(mappedBy = "modelo")
+    @JsonBackReference
+    private List<OrdenDeCambio> ordenDeCambios;
+
 
     public Modelo(){
 

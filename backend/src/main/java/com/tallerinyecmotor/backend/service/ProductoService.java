@@ -41,28 +41,6 @@ public class ProductoService implements IProductoService {
         RespuestaService resOK = new RespuestaService(true,"El Producto se creó correctamente","");
 
         try {
-    /*
-            List<Modelo> modelos =  modeloRepo.findAllById(productoDto.getModelos());
-
-            if (modelos.isEmpty()){
-                RespuestaService resFound = new RespuestaService(false,"Los modelos no existen por lo tanto no se puede crear el producto","");
-                return resFound;
-            }
-
-            List<Proveedor> proveedores = proveedorRepo.findAllById(productoDto.getProveedores());
-
-            if (proveedores.isEmpty()){
-                RespuestaService resFound = new RespuestaService(false,"Los proveedores no existen por lo tanto no se puede crear el producto","");
-                return resFound;
-            }
-
-            List<TipoProducto> tipos = tipoRepo.findAllById(productoDto.getTipos());
-
-            if (tipos.isEmpty()){
-                RespuestaService resFound = new RespuestaService(false,"Los tipos de producto no existen por lo tanto no se puede crear el producto","");
-                return resFound;
-            }
-*/
             
             List<Long> idsModelos = productoDto.getModelos();
             if (idsModelos.isEmpty()){
@@ -135,6 +113,11 @@ public class ProductoService implements IProductoService {
                 producto.setModelos(modelos);
                 producto.setProveedores(proveedores);
                 producto.setTipos(tipos);
+
+                if(producto.getStockMax() <= producto.getStockMin()){
+                    RespuestaService resMinMax = new RespuestaService(false,"El stock max es menor o igual al stock min","");
+                    return resMinMax;
+                }
 
                 productoRepo.save(producto);
 
@@ -320,24 +303,26 @@ public class ProductoService implements IProductoService {
             producto.setCodigo(productoDTO.getCodigo());
         }
 
-        if (productoDTO.getStockMin() > 0){
-            producto.setStockMin(productoDTO.getStockMin());
-        }
-
-        if (productoDTO.getStockMax() > 0){
-            producto.setStockMax(productoDTO.getStockMax());
-        }
-
-        if (productoDTO.getStockActual() > 0){
-            producto.setStockActual(productoDTO.getStockActual());
-        }
-
         if (productoDTO.getPrecioVenta() > 0){
             producto.setPrecioVenta(productoDTO.getPrecioVenta());
         }
 
         if (productoDTO.getPrecioCosto() > 0){
             producto.setPrecioCosto(productoDTO.getPrecioCosto());
+        }
+
+        if (productoDTO.getStockActual() > 0){
+            producto.setStockActual(productoDTO.getStockActual());
+        }
+
+        if(producto.getStockMax() > producto.getStockMin()){
+            if (productoDTO.getStockMax() > 0){
+                producto.setStockMax(productoDTO.getStockMax());
+            }
+
+            if (productoDTO.getPrecioVenta() > 0){
+                producto.setPrecioVenta(productoDTO.getPrecioVenta());
+            }
         }
 
         this.saveProductoUpdate(producto);
