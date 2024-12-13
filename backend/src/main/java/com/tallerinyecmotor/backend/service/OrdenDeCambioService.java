@@ -26,6 +26,9 @@ public class OrdenDeCambioService implements IOrdenDeCambioService {
     @Autowired
     private IModeloRepository modeloRepository;
 
+    @Autowired
+    private IProductoService productoService;
+
     @Override
     public List<OrdenDeCambio> getOrdenes() {
 
@@ -78,6 +81,10 @@ public class OrdenDeCambioService implements IOrdenDeCambioService {
                 newOrdenDeCambio.calcularPrecioTotal();
 
                 ordenRepository.save(newOrdenDeCambio);
+
+                for (Producto producto: newOrdenDeCambio.getProductos()) {
+                    productoService.disminuirStock(producto.getId(),1);
+                }
 
                 return resOK;
             }
